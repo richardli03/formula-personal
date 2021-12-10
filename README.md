@@ -1,6 +1,5 @@
 # formula
 personal olin electric motorsports repo
 
-
-hello test
-
+Current project:
+- Realtime data visualization
