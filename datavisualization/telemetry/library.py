@@ -7,10 +7,11 @@ import serial
 import time
 from redis import Redis
 from redistimeseries.client import Client
-
+import config.py
 
 # Data stream parent class with main pass_data() method call
 # 2-3 data stream children - serial stream, logfile stream, custom pass_data() methods
+
 class DataStream(object):
     def __init__(self, data_channels):
         # self.start_stream = True
@@ -31,6 +32,7 @@ class ArduinoSerialIn(DataStream):
     def __init__(
         self, baudrate=9600, port_name="/dev/ttyUSB0", data_channels=["arduino_data"]
     ):
+        # baud rate is the rate at which information is transferred (9600 bits/second)
         DataStream.__init__(self, data_channels)
         self.ser = serial.Serial(port_name, baudrate)
 
