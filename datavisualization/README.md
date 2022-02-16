@@ -19,7 +19,7 @@ check serial ports, check code, TODO: include args
 - install redis 
 - run makes and tests and stuff
 - install redis time series
-
+- cantools!
 
 need a config file for redis? 
 - loadmodule? 

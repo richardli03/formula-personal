@@ -7,7 +7,7 @@ import serial
 import time
 from redis import Redis
 from redistimeseries.client import Client
-import config.py
+import config
 
 # Data stream parent class with main pass_data() method call
 # 2-3 data stream children - serial stream, logfile stream, custom pass_data() methods
