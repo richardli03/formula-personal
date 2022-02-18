@@ -19,6 +19,8 @@ import csv
 import can
 import cantools
 import sys
+import json
+
 
 #Takes stdin and decodes it
 def decode_csv_live(dbc):
@@ -66,7 +68,7 @@ def decode_csv(dbc, can_csv, new_file):
         i += 1
         can_id = data.pop(0) #removes id and assigns it to can_id
         decoded = db.decode_message(can_id, data) #decodes the message using the dbc
-        x = db.get_message_by_frame_id(can_id) #gets all the information about the signal like name, length ect
+        x = db.get_message_by_frame_id(can_id) #gets all the information about the signal like name, length etc
         decoded_dict = {
                 "time_start": i,
                 "time_end": i + 0.1,
@@ -74,7 +76,10 @@ def decode_csv(dbc, can_csv, new_file):
                 "name":x.name, 
                 "length":x.length, 
                 "signals":decoded}
-        decoded_file.write(str(decoded_dict) + '\n')
+        
+        # Use double quotes instead of python dictionary single quotes
+        dict = json.dumps(decoded_dict)
+        decoded_file.write(str(dict) + '\n')
         
 
 #CLI
