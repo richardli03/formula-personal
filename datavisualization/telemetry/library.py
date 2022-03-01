@@ -7,7 +7,7 @@ import serial
 import time
 from redis import Redis
 from redistimeseries.client import Client
-import config
+import json
 
 # Data stream parent class with main pass_data() method call
 # 2-3 data stream children - serial stream, logfile stream, custom pass_data() methods
@@ -70,6 +70,8 @@ class RadioSerialIn(DataStream):
 
     def __init__(self, path, data_channels=["test_data"]):
         DataStream.__init__(self, data_channels)
+   
+    
 
     def read_line(self):
         pass
@@ -89,6 +91,11 @@ class LogFile(DataStream):
         self.path = path
 
     def read_line(self):
+        with open("can5.json","r") as f:
+            data = json.load(f)
+            for i in data['signals']:
+                print(i)
+            
         # walk through csv logfile and read each line, and read each data value in the line
         # for channel in self.data_channels:
         #     # delimit with spaces, spit out data in tuple
@@ -98,6 +105,7 @@ class LogFile(DataStream):
     def parse_line(self, value):
         pass
 
+print(LogFile.read_line(self))
 
 class RedisDataSender(object):
     def __init__(self, data_stream_object, read_frequency_hz=5):
@@ -106,10 +114,20 @@ class RedisDataSender(object):
         self.data_channels = self.data_stream_object.return_data_channels()
 
         # initialize redis connection
-        redis_instance = Redis(host="127.0.0.1", port="6379")
+        try:
+            redis_instance = Redis(host="127.0.0.1", port="6379")
+        except Exception as e: 
+            print(e)
+            return ("broken")
 
         # initialize redis timeseries client connection
-        self.rts = Client(conn=redis_instance)
+        try:
+            self.rts = Client(conn=redis_instance)
+        except Exception as e: 
+            print(e)
+            return ("broken")
+            
+        
         for data_channel in self.data_channels:
 
             #create a data channel unless it already exists
