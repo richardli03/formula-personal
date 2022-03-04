@@ -67,17 +67,46 @@ class RadioSerialIn(DataStream):
     Class to represent Radio serial datastream object 
     TODO: Handle radio serial formatting
     """
-
+    count = 0 
+    path = ""
+    
+    
     def __init__(self, path, data_channels=["test_data"]):
         DataStream.__init__(self, data_channels)
-   
+        self.path = path
     
-
     def read_line(self):
-        pass
+        with open (self.path,"r") as f:
+            for position, line in enumerate(f):
+        #Iterate over each line and its index
+                if position in [self.count]:
+                    next_line = line
+                    
+        self.count += 1   
+        print(self.count)
+        return next_line
 
-    def parse_line(self):
-        pass
+    
+    def parse_line(self,data):
+        try:
+            val_strn = data.decode() #try except// catch the error but don't break down please
+        except Exception as e: 
+            print(e)
+            return 19.0
+        
+        val_str = val_strn.rstrip()
+        
+        try: 
+            msg = str(val_str)
+        except Exception as e: 
+            print(e)
+            return 19.0
+        
+        return msg
+        
+radio = RadioSerialIn("decoded_can.txt")
+print(radio.read_line()) 
+print(radio.read_line()) 
 
 
 class LogFile(DataStream):
@@ -91,10 +120,6 @@ class LogFile(DataStream):
         self.path = path
 
     def read_line(self):
-        with open("can5.json","r") as f:
-            data = json.load(f)
-            for i in data['signals']:
-                print(i)
             
         # walk through csv logfile and read each line, and read each data value in the line
         # for channel in self.data_channels:
@@ -105,7 +130,6 @@ class LogFile(DataStream):
     def parse_line(self, value):
         pass
 
-print(LogFile.read_line(self))
 
 class RedisDataSender(object):
     def __init__(self, data_stream_object, read_frequency_hz=5):

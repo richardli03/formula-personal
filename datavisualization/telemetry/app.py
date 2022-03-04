@@ -5,7 +5,7 @@ Objective: initialize and run telemetry software pipeline
 """
 
 from library import (
-    ArduinoSerialIn,
+    RadioSerialIn,
     RedisDataSender,
 )
 
@@ -14,7 +14,9 @@ def run():
     """
     Run the data pipeline
     """
-    stream = ArduinoSerialIn()
+    # stream = ArduinoSerialIn()
+    
+    stream = RadioSerialIn()
     print('testing...')
     parser = RedisDataSender(stream)
     parser.grab_serial_data()
