@@ -28,7 +28,7 @@ from redistimeseries.client import Client
 def decode_csv(dbc, can_csv):
     db = cantools.database.load_file(dbc) #gets db file used to decode messages
     final_list = [] #initializes list that will contain the data in the right format
-    decoded_file = open("decoded_can.json", "w")
+    decoded_file = open("decoded_can.txt", "w")
     i = 0
     
     with open (r'{}'.format(can_csv), newline='') as can: #opens csv file that needs to be decoded
@@ -45,7 +45,7 @@ def decode_csv(dbc, can_csv):
 
 
 
-    """
+    
     for data in final_list: #takes each list inside this list
         i += 1
         #removes id and assigns it to can_id
@@ -68,9 +68,8 @@ def decode_csv(dbc, can_csv):
         # Use double quotes instead of python dictionary single quotes
         dict = json.dumps(decoded_dict)
         decoded_file.write(str(dict) + '\n')
-        time.sleep(5)
+        # time.sleep(5)
 
-    """
 
 
 

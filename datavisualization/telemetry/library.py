@@ -2,7 +2,7 @@
 objective - grab data from serial, parse, pass into redis
 timeseries database in realtime
 """
-
+import ast
 import serial
 import time
 from redis import Redis
@@ -62,10 +62,10 @@ class ArduinoSerialIn(DataStream):
         return flt
 
 
-class RadioSerialIn(DataStream):
+class LogFile(DataStream):
     """
-    Class to represent Radio serial datastream object 
-    TODO: Handle radio serial formatting
+    Class to represent logfile datastream object where data can be grabbed with a single function
+    TODO: Handle logfile formatting 
     """
     count = 0 
     path = ""
@@ -82,8 +82,11 @@ class RadioSerialIn(DataStream):
                 if position in [self.count]:
                     next_line = line
                     
-        self.count += 1   
-        print(self.count)
+        next_line = ast.literal_eval(next_line)
+             
+        self.count += 1 
+        time.sleep(1)
+        # print(self.count)
         return next_line
 
     
@@ -104,15 +107,11 @@ class RadioSerialIn(DataStream):
         
         return msg
         
-radio = RadioSerialIn("decoded_can.txt")
-print(radio.read_line()) 
-print(radio.read_line()) 
 
-
-class LogFile(DataStream):
+class RadioSerialIn(DataStream):
     """
-    Class to represent logfile datastream object where data can be grabbed with a single function
-    TODO: Handle logfile formatting 
+    Class to represent Radio serial datastream object 
+    TODO: Handle radio serial formatting
     """
 
     def __init__(self, path, data_channels=["test_data"]):
@@ -163,14 +162,23 @@ class RedisDataSender(object):
     def grab_serial_data(self):
         while True:
             # grab data tuple from line
-            tup = self.data_stream_object.read_line()
-            
-            # walk through all the data channels  
-            for (index, data_channel) in enumerate(self.data_channels):
-                # pass float into database under correct name
-                self.send_to_redis_timeseries(tup[index], data_channel)
-                
-            time.sleep(1 / self.read_frequency_hz)  # should operate
+            tup = self.data_stream_object.read_line()     
+            signals = tup["signals"]
+            print(signals) 
+            for (key, value) in signals.items():
+                self.send_to_redis_timeseries(value, key)
+
+            # should operate
+            time.sleep(1 / self.read_frequency_hz)  
 
     def send_to_redis_timeseries(self, flt, data_channel):
         self.rts.add(data_channel, "*", flt)
+        
+# radio = RadioSerialIn("decoded_can.txt")
+# print(radio.parse_line) 
+# print(radio.read_line())
+# print(radio.read_line()) 
+# print(radio.read_line()) 
+# print(radio.read_line()) 
+# redis_data = RedisDataSender(radio)
+# print(redis_data.grab_serial_data())
