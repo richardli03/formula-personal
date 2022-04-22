@@ -8,7 +8,7 @@ import time
 from redis import Redis
 from redistimeseries.client import Client
 import json
-
+            
 # Data stream parent class with main pass_data() method call
 # 2-3 data stream children - serial stream, logfile stream, custom pass_data() methods
 
@@ -85,7 +85,7 @@ class LogFile(DataStream):
         next_line = ast.literal_eval(next_line)
              
         self.count += 1 
-        time.sleep(1)
+        time.sleep(1) 
         # print(self.count)
         return next_line
 
@@ -114,20 +114,47 @@ class RadioSerialIn(DataStream):
     TODO: Handle radio serial formatting
     """
 
+    path = ""
+    
+        
     def __init__(self, path, data_channels=["test_data"]):
         DataStream.__init__(self, data_channels)
         self.path = path
-
+    
     def read_line(self):
-            
-        # walk through csv logfile and read each line, and read each data value in the line
-        # for channel in self.data_channels:
-        #     # delimit with spaces, spit out data in tuple
+        
+        # This needs to read new lines as it's logged to the logfile.
+        with open (self.path,"r") as f:
+            next_line = f.readline()
+                    
+        next_line = ast.literal_eval(next_line)
+     
+        time.sleep(1) 
+        # print(self.count)
+        return next_line
+                    
+        # next_line = ast.literal_eval(next_line)
+        # time.sleep(1) shouldn't need to sleep because we should be reading data as it's fed in.
+        # print(self.count)
+        # return next_line
 
-        pass
-
-    def parse_line(self, value):
-        pass
+    
+    def parse_line(self,data):
+        try:
+            val_strn = data.decode() #try except// catch the error but don't break down please
+        except Exception as e: 
+            print(e)
+            return 19.0
+        
+        val_str = val_strn.rstrip()
+        
+        try: 
+            msg = str(val_str)
+        except Exception as e: 
+            print(e)
+            return 19.0
+        
+        return msg
 
 
 class RedisDataSender(object):
@@ -166,7 +193,7 @@ class RedisDataSender(object):
             signals = tup["signals"]
             print(signals) 
             for (key, value) in signals.items():
-                self.send_to_redis_timeseries(value, key)
+                self.send_to_redis_timeseries(value, key) 
 
             # should operate
             time.sleep(1 / self.read_frequency_hz)  
@@ -174,8 +201,8 @@ class RedisDataSender(object):
     def send_to_redis_timeseries(self, flt, data_channel):
         self.rts.add(data_channel, "*", flt)
         
-# radio = RadioSerialIn("decoded_can.txt")
-# print(radio.parse_line) 
+# radio = RadioSerialIn("data/nextmessage.txt")
+# # print(radio.parse_line) 
 # print(radio.read_line())
 # print(radio.read_line()) 
 # print(radio.read_line()) 
